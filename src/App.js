@@ -4,6 +4,7 @@ import Header from "./components/Header";
 import Scoreboard from "./components/Scoreboard";
 import Gameboard from "./components/Gameboard";
 import { svgs } from "./assets/card-images";
+import Confetti from 'react-confetti'
 
 function App() {
 
@@ -23,6 +24,7 @@ function App() {
     let clickedCard = cards.find(card => id === card.id)
     if (clickedCard.isPicked) {
       gameOver()
+      newGame()
     } else {
       setCards(prevCards => prevCards.map(card => {
         if (card.id === id) {
@@ -40,14 +42,15 @@ function App() {
 
   function gameOver() {
     if (currentScore > bestScore) {
-      setConfetti(true);
       localStorage.setItem('bestScore', JSON.stringify(currentScore))
-      setBestScore(currentScore)
+      setBestScore(currentScore);
+      setConfetti(true);
+      alert("newBestScore")
     }
-    newGame()
   }
 
   function newGame(){
+    setConfetti(false)//KOKEILE LAITTAA SETTIMEOUTTI
     setCurrentScore(0)
     setCards(createNewCards())
     shuffleCards();
@@ -78,6 +81,7 @@ function App() {
 
   return (
     <div className="container">
+      {confetti && <Confetti></Confetti>}
       <Header />
       <Scoreboard currentScore={currentScore} bestScore={bestScore} />
       <Gameboard cards={cards} handleClick={handleClick} />
