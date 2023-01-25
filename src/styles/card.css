@@ -1,0 +1,24 @@
+.card {
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(250, 235, 215, 0.856);
+    border: 1px solid black;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.676);
+    width: 200px;
+    
+}
+
+.card:hover {
+    cursor: pointer;
+    background-color: rgb(202, 195, 158);
+    box-shadow: 0 0 40px rgb(0, 0, 0);
+}
+
+.card-img{
+    padding: 20px;
+    width: inherit;
+    
+}
