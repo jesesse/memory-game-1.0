@@ -3,29 +3,31 @@ import './styles/main.css'
 import Header from "./components/Header";
 import Scoreboard from "./components/Scoreboard";
 import Gameboard from "./components/Gameboard";
-import { svgs } from "./assets/card-images";
 import Confetti from 'react-confetti'
 
 function App() {
 
-  localStorage.clear();
-
-  const [bestScore, setBestScore] = React.useState(getBestScore())
+  const [bestScore, setBestScore] = React.useState(0)
   const [currentScore, setCurrentScore] = React.useState(0);
-  const [cards, setCards] = React.useState(createNewCards())
-  const [confetti, setConfetti] = React.useState(false)
+  const [cards, setCards] = React.useState([]);
+  const [isGameOver, setIsGameOver] = React.useState(false)
+  const [confetti, setConfetti] = React.useState(false);
 
-  function getBestScore() {
-    if(!JSON.parse(localStorage.getItem('bestScore'))) return 0;
-    else return JSON.parse(localStorage.getItem('bestScore'))
-}
 
   function handleClick(id) {
+    if(isGameOver) return;
     let clickedCard = cards.find(card => id === card.id)
     if (clickedCard.isPicked) {
+      setCards(prevCards => prevCards.map(card => {
+        if (card.id === id) card = {
+          ...card,
+          deathCard: true
+        }
+        return card;
+      }))
       gameOver()
-      newGame()
     } else {
+
       setCards(prevCards => prevCards.map(card => {
         if (card.id === id) {
           card = {
@@ -36,55 +38,74 @@ function App() {
         return card;
       }))
       setCurrentScore(prevScore => prevScore + 1)
-      shuffleCards()
+      shuffleCards();
     }
   }
 
   function gameOver() {
+
+
     if (currentScore > bestScore) {
-      localStorage.setItem('bestScore', JSON.stringify(currentScore))
-      setBestScore(currentScore);
-      setConfetti(true);
-      alert("newBestScore")
+      setBestScore(currentScore)
+      setConfetti(true)
     }
+    setIsGameOver(true)
   }
 
-  function newGame(){
-    setConfetti(false)//KOKEILE LAITTAA SETTIMEOUTTI
+
+  function newGame() {
+    setConfetti(false)
     setCurrentScore(0)
-    setCards(createNewCards())
+    refreshCards();
     shuffleCards();
+    setIsGameOver(false)
   }
 
 
-  function createNewCards() {
-    let cardsArray = [];
-    for (let i = 0; i < svgs.length; i++) {
-      let card = {
-        url: svgs[i].url,
-        name: svgs[i].name,
-        id: i,
-        isPicked: false
-      }
-      cardsArray.push(card)
-    }
-    return cardsArray;
-  }
-
+  React.useEffect(() => {
+    createDeck();
+  }, [])
 
   function shuffleCards() {
-    setCards(prevCards => {
-      let shuffledCards = prevCards.sort((a, b) => 0.5 - Math.random())
-      return shuffledCards;
-    })
+
+    setCards(prevCards => prevCards.sort((a, b) => 0.5 - Math.random()));
+  }
+
+  function refreshCards() {
+
+    setCards(prevCards => prevCards.map(card => {
+      card = {
+        ...card,
+        isPicked: false,
+        deathCard: false
+      }
+      return card;
+    }))
+  }
+
+  async function createDeck() {
+
+    const response = await fetch("https://www.deckofcardsapi.com/api/deck/new/draw/?count=10")
+    const data = await response.json();
+    let deck = [];
+    for (let i = 0; i < data.cards.length; i++) {
+      deck.push({
+        id: i,
+        isClicked: false,
+        imgUrl: data.cards[i].image,
+        text: `${data.cards[i].value} of ${data.cards[i].suit}`,
+      })
+    }
+    setCards(deck)
   }
 
   return (
     <div className="container">
       {confetti && <Confetti></Confetti>}
       <Header />
-      <Scoreboard currentScore={currentScore} bestScore={bestScore} />
-      <Gameboard cards={cards} handleClick={handleClick} />
+      <Scoreboard newBest={confetti} currentScore={currentScore} bestScore={bestScore} />
+      <Gameboard cards={cards} handleClick={handleClick} gameOver={isGameOver} />
+      {isGameOver && <button onClick={newGame}>NEW GAME</button>}
     </div>
   );
 }

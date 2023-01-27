@@ -16,3 +16,18 @@ body{
     flex-flow: column;
     background-color: rgb(55, 39, 71);
 }
+
+button {
+    font-size: larger;
+    border-radius: 10px;
+    align-self: center;
+    width: 20%;
+    color: black;
+    padding: 20px
+}
+
+button:hover {
+    cursor: pointer;
+    box-shadow: 0 0 15px black;
+    background-color: antiquewhite;
+}

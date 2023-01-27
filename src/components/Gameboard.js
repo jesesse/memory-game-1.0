@@ -5,7 +5,11 @@ import '../styles/gameboard.css'
 const Gameboard = (props) => {
 
     const cardElements = props.cards.map(card => {
-        return <Card key={card.id} handleClick={props.handleClick} cardData={card}></Card>
+        return <Card
+            key={card.id}
+            handleClick={() => props.handleClick(card.id)}
+            card={card}>
+        </Card>
     })
 
     return (
